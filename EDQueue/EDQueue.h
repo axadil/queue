@@ -25,6 +25,7 @@ extern NSString *const EDQueueDidDrain;
 @protocol EDQueueDelegate;
 @interface EDQueue : NSObject
 
++ (void)setKey:(NSString*)encryptionKey;
 + (EDQueue *)sharedInstance;
 
 @property (nonatomic, weak) id<EDQueueDelegate> delegate;

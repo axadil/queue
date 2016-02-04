@@ -37,6 +37,12 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 #pragma mark - Singleton
 
+NSString * _encryptionKey = nil;
+
++ (void)setKey:(NSString *) encryptionKey {
+    _encryptionKey = encryptionKey;
+}
+
 + (EDQueue *)sharedInstance
 {
     static EDQueue *singleton = nil;
