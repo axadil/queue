@@ -19,21 +19,30 @@
 
 - (id)init
 {
+    return [self initWithKey:nil];
+}
+
+- (id)initWithKey:(NSString *) encryptionKey
+{
     self = [super init];
     if (self) {
+        
         // Database path
+        NSString *fileName              = encryptionKey ? @"edqueue_0.5.0d.dbs" : @"edqueue_0.5.0d.db";
         NSArray *paths                  = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
         NSString *documentsDirectory    = [paths objectAtIndex:0];
-        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:@"edqueue_0.5.0d.db"];
+        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:fileName];
         
         // Allocate the queue
         _queue                          = [[FMDatabaseQueue alloc] initWithPath:path];
         [self.queue inDatabase:^(FMDatabase *db) {
+            if (encryptionKey) {
+                [db setKey:encryptionKey];
+            }
             [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, task TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, stamp STRING DEFAULT (strftime('%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)"];
             [self _databaseHadError:[db hadError] fromDatabase:db];
         }];
     }
-    
     return self;
 }
 
