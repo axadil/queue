@@ -1,4 +1,25 @@
 ## Queue
+
+**Warning**:
+
+*This is a fork of the main EDQueue project to add encryption of the persistent
+queue using SQLCipher. To enable it, you must have FMDB compiled using
+SQLCipher.*
+
+*Before accessing the singleton with `[EDQueue sharedInstance]` you have to use
+the method `setKey:`:*
+
+```objective-c
+#import "EDQueue.h"
+
+// Do not access [EDQueue sharedInstance]
+[EDQueue setKey: @"my_encryption_key"];
+
+// Now you can access [EDQueue sharedInstance]
+[[EDQueue sharedInstance] setDelegate:self];
+[[EDQueue sharedInstance] start];
+```
+
 #### A persistent background job queue for iOS.
 
 While `NSOperation` and `NSOperationQueue` work well for some repetitive problems and `NSInvocation` for others, iOS doesn't really include a set of tools for managing large collections of arbitrary background tasks easily. **EDQueue provides a high-level interface for implementing a threaded job queue using [GCD](http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html) and [SQLLite3](http://www.sqlite.org/). All you need to do is handle the jobs within the provided delegate method and EDQueue handles the rest.**
@@ -33,7 +54,7 @@ YourAppDelegate.m
 - (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job
 {
     sleep(1);           // This won't block the main thread. Yay!
-    
+
     // Wrap your job processing in a try-catch. Always use protection!
     @try {
         if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
@@ -45,7 +66,7 @@ YourAppDelegate.m
     @catch (NSException *exception) {
         return EDQueueResultCritical;
     }
-    
+
     return EDQueueResultCritical;
 }
 ```
@@ -67,7 +88,7 @@ As of v0.6.0 queue includes a delegate method suited for handling asyncronous jo
 - (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult))block
 {
     sleep(1);
-    
+
     @try {
         if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
             block(EDQueueResultSuccess);
