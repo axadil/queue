@@ -13,6 +13,9 @@
 #import "FMDatabasePool.h"
 #import "FMDatabaseQueue.h"
 
+NSString *const EDQueueDatabasePlainFile = @"edqueue_0.5.0d.db";
+NSString *const EDQueueDatabaseSecuredFile = @"edqueue_0.5.0d.dbs";
+
 @implementation EDQueueStorageEngine
 
 #pragma mark - Init
@@ -28,7 +31,7 @@
     if (self) {
         
         // Database path
-        NSString *fileName              = encryptionKey ? @"edqueue_0.5.0d.dbs" : @"edqueue_0.5.0d.db";
+        NSString *fileName              = encryptionKey ? EDQueueDatabaseSecuredFile : EDQueueDatabasePlainFile;
         NSArray *paths                  = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
         NSString *documentsDirectory    = [paths objectAtIndex:0];
         NSString *path                  = [documentsDirectory stringByAppendingPathComponent:fileName];

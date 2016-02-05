@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+FOUNDATION_EXPORT NSString *const EDQueueDatabasePlainFile;
+FOUNDATION_EXPORT NSString *const EDQueueDatabaseSecuredFile;
+
 @class FMDatabaseQueue;
 @interface EDQueueStorageEngine : NSObject
 
