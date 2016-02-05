@@ -8,6 +8,41 @@
 
 #import "EDQueue.h"
 #import "EDQueueStorageEngine.h"
+#import <sqlite3.h>
+
+
+int EDQueueConvertExistingQueueToEncrypted(NSString * encryptionKey) {
+    
+    NSArray *paths                  = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
+    NSString *documentsDirectory    = [paths objectAtIndex:0];
+    NSString *plainPath             = [documentsDirectory stringByAppendingPathComponent:EDQueueDatabasePlainFile];
+    NSString *securedPath           = [documentsDirectory stringByAppendingPathComponent:EDQueueDatabaseSecuredFile];
+    
+    // SQL Query. NOTE THAT DATABASE IS THE FULL PATH NOT ONLY THE NAME
+    const char* sqlQ = [[NSString stringWithFormat:@"ATTACH DATABASE '%@' AS encrypted KEY '%@';",securedPath, encryptionKey] UTF8String];
+    
+    sqlite3 *unencrypted_DB;
+    if (sqlite3_open([plainPath UTF8String], &unencrypted_DB) == SQLITE_OK) {
+        sqlite3_exec(unencrypted_DB, sqlQ, NULL, NULL, NULL);
+        sqlite3_exec(unencrypted_DB, "SELECT sqlcipher_export('encrypted');", NULL, NULL, NULL);
+        sqlite3_exec(unencrypted_DB, "DETACH DATABASE encrypted;", NULL, NULL, NULL);
+        sqlite3_close(unencrypted_DB);
+    }
+    else {
+        sqlite3_close(unencrypted_DB);
+        NSLog(@"Failed to open database with message '%s'.", sqlite3_errmsg(unencrypted_DB));
+    }
+    
+    // Delete old file
+    NSError* error = nil;
+    [[NSFileManager defaultManager] removeItemAtPath:plainPath error:&error];
+    if (error) {
+        return -2;
+    }
+    
+    return 0;
+}
+
 
 NSString *const EDQueueDidStart = @"EDQueueDidStart";
 NSString *const EDQueueDidStop = @"EDQueueDidStop";

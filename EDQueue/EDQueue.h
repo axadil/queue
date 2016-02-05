@@ -22,6 +22,9 @@ extern NSString *const EDQueueJobDidSucceed;
 extern NSString *const EDQueueJobDidFail;
 extern NSString *const EDQueueDidDrain;
 
+int EDQueueConvertExistingQueueToEncrypted(NSString * encryptionKey);
+
+
 @protocol EDQueueDelegate;
 @interface EDQueue : NSObject
 
