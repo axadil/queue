@@ -18,6 +18,16 @@ int EDQueueConvertExistingQueueToEncrypted(NSString * encryptionKey) {
     NSString *plainPath             = [documentsDirectory stringByAppendingPathComponent:EDQueueDatabasePlainFile];
     NSString *securedPath           = [documentsDirectory stringByAppendingPathComponent:EDQueueDatabaseSecuredFile];
     
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ( [fileManager fileExistsAtPath:securedPath] ) {
+        NSLog(@"An encrypted queue file already exists, not converting old plain file");
+        return -1;
+    }
+    if ( ! [fileManager fileExistsAtPath:plainPath] ) {
+        NSLog(@"No queue file to encrypt");
+        return 0;
+    }
+    
     // SQL Query. NOTE THAT DATABASE IS THE FULL PATH NOT ONLY THE NAME
     const char* sqlQ = [[NSString stringWithFormat:@"ATTACH DATABASE '%@' AS encrypted KEY '%@';",securedPath, encryptionKey] UTF8String];
     
@@ -94,7 +104,7 @@ NSString * _encryptionKey = nil;
 {
     self = [super init];
     if (self) {
-        _engine     = [[EDQueueStorageEngine alloc] init];
+        _engine     = [[EDQueueStorageEngine alloc] initWithKey:_encryptionKey];
         _retryLimit = 4;
     }
     return self;
